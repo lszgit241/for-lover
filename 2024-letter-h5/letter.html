@@ -23,13 +23,15 @@
         text-align: center;
       }
       .f-title {
-        width: 100%;
         font-size: var(--text-title-size);
         line-height: 1.6;
       }
       .f-normal {
         font-size: var(--text-normal-size);
         line-height: 1.4;
+      }
+      .l-w-p100 {
+        width: 100%;
       }
       .l-center {
         position: absolute;
@@ -45,15 +47,14 @@
         border: 0;
         background-color: transparent;
         outline: none;
-        width: 100%;
         border-bottom: 1px solid rgba(255, 255, 255, 0.5);
       }
       .button {
         border: 1px solid #ffeafe;
         background-color: transparent;
         color: var(--text-white);
-        border-radius: 6px;
-        padding: 8px 12px;
+        border-radius: 18px;
+        padding: 2vw 6vw;
       }
       .cursor-blink {
         animation: cursorBlink 1s linear infinite;
@@ -107,13 +108,13 @@
     <!-- 主要舞台 -->
     <div id="stage" class="stage"></div>
     <div id="stageFooter" class="stage-footer">
-      <button
-        style="margin: 3vw"
-        class="f f-title button l-align-center"
-        onclick="nextMessage"
+      <div
+        style="margin: 2vw auto"
+        class="f f-normal f-center"
+        onclick="nextMessage()"
       >
-        继续阅读内容
-      </button>
+        点击继续阅读
+      </div>
     </div>
     <!-- 临时存放的dom模板 -->
     <div class="temps">
@@ -127,14 +128,18 @@
       var LETTER_MESSAGE_PROCESS = {
         0: [
           {
-            class: 'f f-title l-center f-center',
+            class: 'f f-title l-center l-w-p100 f-center',
             message: '点击以全屏阅读这封信',
-            onclick: ['enterFullscreen', 'showFooter'],
+            onclick: [
+              // 【todo】暂时先不全屏，最后记得放开
+              // 'enterFullscreen',
+              'showFooter',
+            ],
           },
         ],
         1: [
           {
-            class: 'f f-title l-center f-center',
+            class: 'f f-title l-center l-w-p100 f-center',
             message: 'Hi 丹丹!',
           },
         ],
@@ -166,6 +171,9 @@
           }
           if (eachMsg.onclick) {
             eachMsgDOM.addEventListener('click', () => {
+              if (isSpelling) {
+                return false;
+              }
               if (
                 Object.prototype.toString.call(eachMsg.onclick) !==
                 '[object Array]'
@@ -179,6 +187,12 @@
           }
           stageDOM.appendChild(eachMsgDOM);
         });
+
+        // 播放完毕后执行下标
+        messageIndex++;
+        if (!LETTER_MESSAGE_PROCESS[messageIndex]) {
+          messageIndex = 0;
+        }
       }
 
       function showFooter() {
