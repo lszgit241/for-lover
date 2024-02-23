@@ -23,6 +23,7 @@
         text-align: center;
       }
       .f-title {
+        width: 100%;
         font-size: var(--text-title-size);
         line-height: 1.6;
       }
@@ -35,6 +36,10 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+      }
+      .l-align-center {
+        display: block;
+        margin: 0 auto;
       }
       .input {
         border: 0;
@@ -50,6 +55,20 @@
         border-radius: 6px;
         padding: 8px 12px;
       }
+      .cursor-blink {
+        animation: cursorBlink 1s linear infinite;
+      }
+      @keyframes cursorBlink {
+        0% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
     </style>
     <style>
       html,
@@ -63,8 +82,10 @@
         height: 100vh;
         overflow: hidden;
         background: linear-gradient(120deg, #360033 30%, #042033);
+        padding: 3vw;
+        box-sizing: border-box;
       }
-      .footer {
+      .stage-footer {
         position: absolute;
         bottom: 0;
         left: 0;
@@ -85,8 +106,14 @@
     </style>
     <!-- 主要舞台 -->
     <div id="stage" class="stage"></div>
-    <div id="footer" class="footer">
-      <button class="button" onclick="nextMessage">继续阅读</button>
+    <div id="stageFooter" class="stage-footer">
+      <button
+        style="margin: 3vw"
+        class="f f-title button l-align-center"
+        onclick="nextMessage"
+      >
+        继续阅读内容
+      </button>
     </div>
     <!-- 临时存放的dom模板 -->
     <div class="temps">
@@ -100,22 +127,27 @@
       var LETTER_MESSAGE_PROCESS = {
         0: [
           {
-            class: 'f f-title l-center',
-            message: '点击全屏阅读这封信',
+            class: 'f f-title l-center f-center',
+            message: '点击以全屏阅读这封信',
             onclick: ['enterFullscreen', 'showFooter'],
           },
         ],
         1: [
           {
-            class: 'f f-title l-center',
+            class: 'f f-title l-center f-center',
             message: 'Hi 丹丹!',
           },
         ],
       };
       var messageIndex = 0;
       var spellWordProcess = Promise.resolve();
-
+      var isSpelling = false;
       function nextMessage() {
+        console.log('next');
+        if (isSpelling) {
+          return false;
+        }
+
         // 清空
         let stageDOM = document.getElementById('stage');
         stageDOM.innerHTML = '';
@@ -126,8 +158,11 @@
           let eachMsgDOM;
           if (!eachMsg.type || eachMsg.type === 'text') {
             eachMsgDOM = document.createElement('div');
+            if (eachMsg.class) {
+              eachMsgDOM.classList.add(...eachMsg.class.split(' '));
+            }
             // 文字统一都是通过拼写得出来的
-            spellWordSync(eachMsgDOM, eachMsg.message);
+            spellWordSync(eachMsgDOM, eachMsg.message, eachMsg.class);
           }
           if (eachMsg.onclick) {
             eachMsgDOM.addEventListener('click', () => {
@@ -145,19 +180,47 @@
           stageDOM.appendChild(eachMsgDOM);
         });
       }
+
       function showFooter() {
-        document.getElementById('footer').classList.add('footer-show');
+        document.getElementById('stageFooter').classList.add('footer-show');
       }
+
       // 根据调用顺序，依次的以一定速度打进去
-      function spellWordSync(dom, message) {
+      function spellWordSync(dom, message, classNames) {
+        // dom不要一起打字，而是顺次打字
         spellWordProcess = spellWordProcess.then(
           new Promise(async (resolve) => {
+            isSpelling = true;
+            // 增加文字块dom
+            let textDOM = document.createElement('span');
+            dom.appendChild(textDOM);
+
+            // 增加光标dom
+            let cursorDOM = document.createElement('span');
+            cursorDOM.classList.add('f', 'cursor-blink');
+            cursorDOM.innerHTML = ' |';
+            dom.appendChild(cursorDOM);
+
+            // 拼写文字
             for (var i = 0; i < message.length; i++) {
+              // 输入字符时的间隔
               let randomPending = Math.random() * 500;
+              await new Promise((resolve) =>
+                setTimeout(() => resolve(), randomPending)
+              );
+              let msgPart = message.slice(0, i + 1);
+              textDOM.innerHTML = msgPart;
             }
+
+            // 最后一个字拼完以后稍作停留
+            await new Promise((resolve) => setTimeout(() => resolve(), 800));
+            dom.removeChild(cursorDOM);
+            isSpelling = false;
+            resolve();
           })
         );
       }
+
       // 进入全屏
       function enterFullscreen() {
         try {
@@ -175,6 +238,7 @@
           fullScreenFlag = true;
         }
       }
+
       // 退出全屏
       function exitFullscreen() {
         try {
