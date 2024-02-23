@@ -81,10 +81,23 @@
       .stage {
         width: 100vw;
         height: 100vh;
-        overflow: hidden;
+        overflow: scroll;
         background: linear-gradient(120deg, #360033 30%, #042033);
         padding: 3vw;
+        padding-bottom: 6vw;
         box-sizing: border-box;
+      }
+      .stage::-webkit-scrollbar {
+        display: none;
+      }
+      .stage::-moz-scrollbar {
+        display: none;
+      }
+      .stage::-o-scrollbar {
+        display: none;
+      }
+      .stage::-ms-scrollbar {
+        display: none;
       }
       .stage-footer {
         position: absolute;
@@ -143,16 +156,25 @@
             message: 'Hi 丹丹!',
           },
         ],
+        2: [
+          {
+            class: 'f f-title l-center l-w-p100 f-center',
+            message: '我是脏脏!',
+          },
+        ],
       };
       var messageIndex = 0;
       var spellWordProcess = Promise.resolve();
       var isSpelling = false;
+      var isDoingNext = false;
       function nextMessage() {
-        console.log('next');
         if (isSpelling) {
           return false;
         }
-
+        if (isDoingNext) {
+          return false;
+        }
+        isDoingNext = true;
         // 清空
         let stageDOM = document.getElementById('stage');
         stageDOM.innerHTML = '';
@@ -193,6 +215,7 @@
         if (!LETTER_MESSAGE_PROCESS[messageIndex]) {
           messageIndex = 0;
         }
+        isDoingNext = false;
       }
 
       function showFooter() {
