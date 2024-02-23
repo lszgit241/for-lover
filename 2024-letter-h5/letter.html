@@ -25,10 +25,14 @@
       .f-title {
         font-size: var(--text-title-size);
         line-height: 1.6;
+        padding: 0 3vw;
+        box-sizing: border-box;
       }
       .f-normal {
         font-size: var(--text-normal-size);
         line-height: 1.4;
+        padding: 3vw;
+        box-sizing: border-box;
       }
       .l-w-p100 {
         width: 100%;
@@ -83,7 +87,6 @@
         height: 100vh;
         overflow: scroll;
         background: linear-gradient(120deg, #360033 30%, #042033);
-        padding: 3vw;
         padding-bottom: 6vw;
         box-sizing: border-box;
       }
@@ -138,8 +141,8 @@
     <script>
       var fullScreenFlag = false;
       // 整个信件的文字结构信息
-      var LETTER_MESSAGE_PROCESS = {
-        0: [
+      var LETTER_MESSAGE_PROCESS = [
+        [
           {
             class: 'f f-title l-center l-w-p100 f-center',
             message: '点击以全屏阅读这封信',
@@ -150,24 +153,24 @@
             ],
           },
         ],
-        1: [
+        [
           {
             class: 'f f-title l-center l-w-p100 f-center',
             message: 'Hi 丹丹!',
           },
         ],
-        2: [
+        [
           {
             class: 'f f-title l-center l-w-p100 f-center',
-            message: '我是脏脏!',
+            message: '我是脏脏！哈哈，想用这样的一封信祝你生日快乐！',
           },
         ],
-      };
+      ];
       var messageIndex = 0;
       var spellWordProcess = Promise.resolve();
       var isSpelling = false;
       var isDoingNext = false;
-      function nextMessage() {
+      async function nextMessage() {
         if (isSpelling) {
           return false;
         }
@@ -176,13 +179,16 @@
         }
         isDoingNext = true;
         // 清空
-        let stageDOM = document.getElementById('stage');
+        var stageDOM = document.getElementById('stage');
         stageDOM.innerHTML = '';
 
         // 处理每一页的信息
-        let msgArr = LETTER_MESSAGE_PROCESS[messageIndex];
+        var msgArr = LETTER_MESSAGE_PROCESS[messageIndex];
+        for (var i = 0; i < msgArr.length; i++) {
+          var eachMsg = msgArr[i];
+        }
         msgArr.forEach((eachMsg) => {
-          let eachMsgDOM;
+          var eachMsgDOM;
           if (!eachMsg.type || eachMsg.type === 'text') {
             eachMsgDOM = document.createElement('div');
             if (eachMsg.class) {
@@ -224,37 +230,40 @@
 
       // 根据调用顺序，依次的以一定速度打进去
       function spellWordSync(dom, message, classNames) {
-        // dom不要一起打字，而是顺次打字
+        // dom不要每一个div同时打字，而是根据阅读顺序的顺次打字
         spellWordProcess = spellWordProcess.then(
-          new Promise(async (resolve) => {
-            isSpelling = true;
-            // 增加文字块dom
-            let textDOM = document.createElement('span');
-            dom.appendChild(textDOM);
+          () =>
+            new Promise(async (resolve) => {
+              isSpelling = true;
+              // 增加文字块dom
+              var textDOM = document.createElement('span');
+              dom.appendChild(textDOM);
 
-            // 增加光标dom
-            let cursorDOM = document.createElement('span');
-            cursorDOM.classList.add('f', 'cursor-blink');
-            cursorDOM.innerHTML = ' |';
-            dom.appendChild(cursorDOM);
+              // 增加光标dom
+              var cursorDOM = document.createElement('span');
+              cursorDOM.classList.add('f', 'cursor-blink');
+              cursorDOM.innerHTML = ' |';
+              dom.appendChild(cursorDOM);
 
-            // 拼写文字
-            for (var i = 0; i < message.length; i++) {
-              // 输入字符时的间隔
-              let randomPending = Math.random() * 500;
-              await new Promise((resolve) =>
-                setTimeout(() => resolve(), randomPending)
+              // 拼写文字
+              for (var i = 0; i < message.length; i++) {
+                // 输入字符时的间隔
+                var randomPending = Math.random() * 500;
+                await new Promise((pResolve) =>
+                  setTimeout(() => pResolve(), randomPending)
+                );
+                var msgPart = message.slice(0, i + 1);
+                textDOM.innerHTML = msgPart;
+              }
+
+              // 最后一个字拼完以后稍作停留
+              await new Promise((pResolve) =>
+                setTimeout(() => pResolve(), 800)
               );
-              let msgPart = message.slice(0, i + 1);
-              textDOM.innerHTML = msgPart;
-            }
-
-            // 最后一个字拼完以后稍作停留
-            await new Promise((resolve) => setTimeout(() => resolve(), 800));
-            dom.removeChild(cursorDOM);
-            isSpelling = false;
-            resolve();
-          })
+              dom.removeChild(cursorDOM);
+              isSpelling = false;
+              resolve();
+            })
         );
       }
 
