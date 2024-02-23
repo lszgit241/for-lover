@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For Dandan!</title>
+  </head>
+  <body>
+    <style>
+      :root {
+        --text-white: #ffeafe;
+        --text-normal-size: 3.6vw;
+        --text-title-size: 4.8vw;
+      }
+      .f {
+        font-family: Microsoft YaHei, PingFang SC;
+        color: var(--text-white);
+        font-weight: 100;
+        opacity: 0.96;
+        letter-spacing: 1px;
+      }
+      .f-center {
+        text-align: center;
+      }
+      .f-title {
+        font-size: var(--text-title-size);
+        line-height: 1.6;
+      }
+      .f-normal {
+        font-size: var(--text-normal-size);
+        line-height: 1.4;
+      }
+      .l-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .input {
+        border: 0;
+        background-color: transparent;
+        outline: none;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      .button {
+        border: 1px solid #ffeafe;
+        background-color: transparent;
+        color: var(--text-white);
+        border-radius: 6px;
+        padding: 8px 12px;
+      }
+    </style>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-size: 0;
+      }
+      .stage {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(120deg, #360033 30%, #042033);
+      }
+      .footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        transition: 0.3s all ease-in-out;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .footer-show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .temps {
+        display: none;
+        width: 0;
+        height: 0;
+      }
+    </style>
+    <!-- 主要舞台 -->
+    <div id="stage" class="stage"></div>
+    <div id="footer" class="footer">
+      <button class="button" onclick="nextMessage">继续阅读</button>
+    </div>
+    <!-- 临时存放的dom模板 -->
+    <div class="temps">
+      <div id="greeting">
+        <div class="f f-center f-title">Hi 丹丹!</div>
+      </div>
+    </div>
+    <script>
+      var fullScreenFlag = false;
+      // 整个信件的文字结构信息
+      var LETTER_MESSAGE_PROCESS = {
+        0: [
+          {
+            class: 'f f-title l-center',
+            message: '点击全屏阅读这封信',
+            onclick: ['enterFullscreen', 'showFooter'],
+          },
+        ],
+        1: [
+          {
+            class: 'f f-title l-center',
+            message: 'Hi 丹丹!',
+          },
+        ],
+      };
+      var messageIndex = 0;
+      var spellWordProcess = Promise.resolve();
+
+      function nextMessage() {
+        // 清空
+        let stageDOM = document.getElementById('stage');
+        stageDOM.innerHTML = '';
+
+        // 处理每一页的信息
+        let msgArr = LETTER_MESSAGE_PROCESS[messageIndex];
+        msgArr.forEach((eachMsg) => {
+          let eachMsgDOM;
+          if (!eachMsg.type || eachMsg.type === 'text') {
+            eachMsgDOM = document.createElement('div');
+            // 文字统一都是通过拼写得出来的
+            spellWordSync(eachMsgDOM, eachMsg.message);
+          }
+          if (eachMsg.onclick) {
+            eachMsgDOM.addEventListener('click', () => {
+              if (
+                Object.prototype.toString.call(eachMsg.onclick) !==
+                '[object Array]'
+              ) {
+                eachMsg.onclick = [eachMsg.onclick];
+              }
+              eachMsg.onclick.forEach((eachClickName) => {
+                window[eachClickName]();
+              });
+            });
+          }
+          stageDOM.appendChild(eachMsgDOM);
+        });
+      }
+      function showFooter() {
+        document.getElementById('footer').classList.add('footer-show');
+      }
+      // 根据调用顺序，依次的以一定速度打进去
+      function spellWordSync(dom, message) {
+        spellWordProcess = spellWordProcess.then(
+          new Promise(async (resolve) => {
+            for (var i = 0; i < message.length; i++) {
+              let randomPending = Math.random() * 500;
+            }
+          })
+        );
+      }
+      // 进入全屏
+      function enterFullscreen() {
+        try {
+          var element = document.documentElement;
+          if (element.requestFullscreen) {
+            element.requestFullscreen();
+          } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+          } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+          }
+        } finally {
+          fullScreenFlag = true;
+        }
+      }
+      // 退出全屏
+      function exitFullscreen() {
+        try {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        } finally {
+          fullScreenFlag = false;
+        }
+      }
+
+      window.onload = () => {
+        nextMessage();
+      };
+    </script>
+  </body>
+</html>
