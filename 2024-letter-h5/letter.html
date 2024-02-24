@@ -195,7 +195,7 @@
       var nextMessageProcessing = false;
       var bgMusic = null;
       // 整个信件的文字结构信息
-      var LETTER_MESSAGE_PROCESS = [
+      var LETTER_MESSAGES = [
         [
           $center_title('点我开始阅读这封信', {
             onClick: [
@@ -279,7 +279,7 @@
         stageDOM.innerHTML = '';
 
         // 处理每一页的信息
-        var msgArr = LETTER_MESSAGE_PROCESS[messageIndex];
+        var msgArr = LETTER_MESSAGES[messageIndex];
         for (var i = 0; i < msgArr.length; i++) {
           var eachMsg = msgArr[i];
           if (eachMsg.onEnter) {
@@ -332,7 +332,7 @@
 
         // 播放完毕后执行下标
         messageIndex++;
-        if (!LETTER_MESSAGE_PROCESS[messageIndex]) {
+        if (!LETTER_MESSAGES[messageIndex]) {
           messageIndex = 0;
         }
         nextMessageProcessing = false;
