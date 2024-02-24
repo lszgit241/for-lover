@@ -190,7 +190,7 @@
           {
             class: CENTER_TITLE_PATTERN,
             message: '点我开始阅读这封信',
-            onclick: [
+            onClick: [
               'enterFullscreen',
               'showFooter',
               'playDefaultMusic',
@@ -198,31 +198,31 @@
             ],
           },
         ],
-        // [
-        //   {
-        //     class: CENTER_TITLE_PATTERN,
-        //     message: 'Hi 丹丹!',
-        //   },
-        // ],
-        // [
-        //   {
-        //     class: CENTER_TITLE_PATTERN,
-        //     message:
-        //       '我是脏脏！哈哈，思来想去，还是想用这样的一封信祝你生日快乐！',
-        //   },
-        // ],
-        // [
-        //   {
-        //     class: NORMAL_PATTERN,
-        //     message:
-        //       '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
-        //   },
-        //   {
-        //     class: NORMAL_PATTERN,
-        //     message:
-        //       '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
-        //   },
-        // ],
+        [
+          {
+            class: CENTER_TITLE_PATTERN,
+            message: 'Hi 丹丹!',
+          },
+        ],
+        [
+          {
+            class: CENTER_TITLE_PATTERN,
+            message:
+              '我是脏脏！哈哈，思来想去，还是想用这样的一封信祝你生日快乐！',
+          },
+        ],
+        [
+          {
+            class: NORMAL_PATTERN,
+            message:
+              '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
+          },
+          {
+            class: NORMAL_PATTERN,
+            message:
+              '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
+          },
+        ],
         [
           {
             class: CENTER_IMAGE_PATTERN,
@@ -292,6 +292,17 @@
         var msgArr = LETTER_MESSAGE_PROCESS[messageIndex];
         for (var i = 0; i < msgArr.length; i++) {
           var eachMsg = msgArr[i];
+          if (eachMsg.onEnter) {
+            if (
+              Object.prototype.toString.call(eachMsg.onEnter) !==
+              '[object Array]'
+            ) {
+              eachMsg.onEnter = [eachMsg.onEnter];
+            }
+            eachMsg.onEnter.forEach((eachEnterName) => {
+              window[eachEnterName]();
+            });
+          }
           if (!eachMsg.type || eachMsg.type === 'text') {
             eachMsgDOM = document.createElement('div');
             if (eachMsg.class) {
@@ -308,18 +319,18 @@
             }
             await drawImageSync(eachMsgDOM);
           }
-          if (eachMsg.onclick) {
+          if (eachMsg.onClick) {
             eachMsgDOM.addEventListener('click', () => {
               if (isSpelling) {
                 return false;
               }
               if (
-                Object.prototype.toString.call(eachMsg.onclick) !==
+                Object.prototype.toString.call(eachMsg.onClick) !==
                 '[object Array]'
               ) {
-                eachMsg.onclick = [eachMsg.onclick];
+                eachMsg.onClick = [eachMsg.onClick];
               }
-              eachMsg.onclick.forEach((eachClickName) => {
+              eachMsg.onClick.forEach((eachClickName) => {
                 window[eachClickName]();
               });
             });
