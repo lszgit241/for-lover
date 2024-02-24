@@ -11,6 +11,7 @@
         --text-white: #ffeafe;
         --text-normal-size: 3.6vw;
         --text-title-size: 4.8vw;
+        --content-padding: 4vw;
       }
       .f {
         font-family: Microsoft YaHei, PingFang SC;
@@ -25,14 +26,14 @@
       .f-title {
         font-size: var(--text-title-size);
         line-height: 2;
-        padding: 0 3vw;
+        padding: 0 var(--content-padding);
         box-sizing: border-box;
       }
       .f-normal {
         font-size: var(--text-normal-size);
         line-height: 1.6;
-        padding: 0 3vw;
-        padding-bottom: 1.5vw;
+        padding: 0 var(--content-padding);
+        padding-top: 1.5vw;
         box-sizing: border-box;
       }
       .l-w-p100 {
@@ -61,10 +62,33 @@
         border-radius: 18px;
         padding: 2vw 6vw;
       }
-      .cursor-blink {
-        animation: cursorBlink 1s linear infinite;
+      .image {
+        display: block;
+        width: 80vw;
+        height: auto;
+        border-radius: 1vw;
+        box-shadow: 0 0 1vw 1vw rgba(0, 0, 0, 0.16);
+        box-sizing: border-box;
+        animation: showUp 1s linear forwards;
       }
-      @keyframes cursorBlink {
+      .i-content {
+        margin: 1.5vw var(--content-padding);
+      }
+      .blink {
+        animation: blink 1s linear infinite;
+      }
+      .weak-blink {
+        animation: weakBlink 4s linear infinite;
+      }
+      @keyframes showUp {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      @keyframes blink {
         0% {
           opacity: 0;
         }
@@ -73,6 +97,17 @@
         }
         100% {
           opacity: 0;
+        }
+      }
+      @keyframes weakBlink {
+        0% {
+          opacity: 0.2;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.2;
         }
       }
     </style>
@@ -88,7 +123,7 @@
       }
       .stage {
         width: 100vw;
-        height: 74vh;
+        height: calc(100vh - 10vw);
         overflow: scroll;
         box-sizing: border-box;
       }
@@ -128,29 +163,38 @@
     <div id="stageFooter" class="stage-footer">
       <div
         style="margin: 0 auto 2vw auto"
-        class="f f-normal f-center"
+        class="f f-normal f-center weak-blink"
         onclick="nextMessage()"
       >
-        点击继续阅读
+        点我以继续阅读
       </div>
     </div>
     <!-- 临时存放的dom模板 -->
     <div class="temps"></div>
     <script>
+      var IMAGE_CDN_LIST = [
+        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/9b3e237f7da592aeab93c89affd9ec91.a7cdcd5f920289b8.jpg',
+        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/168efe3395936fb8e115e805406d0155.b5d32d3f1367ea7f.jpeg',
+        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/0900ca411c546900ff6b260131b0e83b.2268016fddba06ee.jpeg',
+        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/8a68d6cc5532af612a5684e916376aa4.bff10ea883292d23.jpeg',
+      ];
       var fullScreenFlag = false;
       var CENTER_TITLE_PATTERN = 'f f-title l-center l-w-p100 f-center';
       var TITLE_PATTERN = 'f f-title';
       var NORMAL_PATTERN = 'f f-normal';
+      var CENTER_IMAGE_PATTERN = 'image l-center';
+      var IMAGE_PATTERN = 'image i-content';
       // 整个信件的文字结构信息
       var LETTER_MESSAGE_PROCESS = [
         [
           {
             class: CENTER_TITLE_PATTERN,
-            message: '点击以全屏阅读这封信',
+            message: '点我开始阅读这封信',
             onclick: [
-              // 【todo】暂时先不全屏，最后记得放开
-              // 'enterFullscreen',
+              'enterFullscreen',
               'showFooter',
+              'playDefaultMusic',
+              'nextMessage',
             ],
           },
         ],
@@ -163,7 +207,8 @@
         // [
         //   {
         //     class: CENTER_TITLE_PATTERN,
-        //     message: '我是脏脏！哈哈，想用这样的一封信祝你生日快乐！',
+        //     message:
+        //       '我是脏脏！哈哈，思来想去，还是想用这样的一封信祝你生日快乐！',
         //   },
         // ],
         // [
@@ -172,19 +217,37 @@
         //     message:
         //       '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
         //   },
+        //   {
+        //     class: NORMAL_PATTERN,
+        //     message:
+        //       '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
+        //   },
         // ],
         [
           {
+            class: CENTER_IMAGE_PATTERN,
+            type: 'image',
+            src: IMAGE_CDN_LIST[0],
+          },
+        ],
+        [
+          {
             class: TITLE_PATTERN,
-            message: '记忆1',
+            message: '一切的开始',
           },
           {
             class: NORMAL_PATTERN,
             message: '2018年8月25日，一个很平凡的日子',
           },
           {
+            class: IMAGE_PATTERN,
+            type: 'image',
+            src: IMAGE_CDN_LIST[0],
+          },
+          {
             class: NORMAL_PATTERN,
-            message: '我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起',
+            message:
+              '我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起',
           },
           {
             class: NORMAL_PATTERN,
@@ -207,15 +270,20 @@
       var messageIndex = 0;
       var spellWordProcess = Promise.resolve();
       var isSpelling = false;
-      var isDoingNext = false;
+      var isImageLoading = false;
+      var nextMessageProcessing = false;
+      var bgMusic = null;
       async function nextMessage() {
         if (isSpelling) {
           return false;
         }
-        if (isDoingNext) {
+        if (isImageLoading) {
           return false;
         }
-        isDoingNext = true;
+        if (nextMessageProcessing) {
+          return false;
+        }
+        nextMessageProcessing = true;
         // 清空
         var stageDOM = document.getElementById('stage');
         stageDOM.innerHTML = '';
@@ -224,16 +292,21 @@
         var msgArr = LETTER_MESSAGE_PROCESS[messageIndex];
         for (var i = 0; i < msgArr.length; i++) {
           var eachMsg = msgArr[i];
-        }
-        msgArr.forEach((eachMsg) => {
-          var eachMsgDOM;
           if (!eachMsg.type || eachMsg.type === 'text') {
             eachMsgDOM = document.createElement('div');
             if (eachMsg.class) {
               eachMsgDOM.classList.add(...eachMsg.class.split(' '));
             }
+            stageDOM.appendChild(eachMsgDOM);
             // 文字统一都是通过拼写得出来的
-            spellWordSync(eachMsgDOM, eachMsg.message, eachMsg.class);
+            await spellWordSync(eachMsgDOM, eachMsg.message, eachMsg.class);
+          } else if (eachMsg.type === 'image') {
+            eachMsgDOM = document.createElement('img');
+            eachMsgDOM.src = eachMsg.src;
+            if (eachMsg.class) {
+              eachMsgDOM.classList.add(...eachMsg.class.split(' '));
+            }
+            await drawImageSync(eachMsgDOM);
           }
           if (eachMsg.onclick) {
             eachMsgDOM.addEventListener('click', () => {
@@ -251,29 +324,72 @@
               });
             });
           }
-        });
+        }
+        // msgArr.forEach((eachMsg) => {
+        //   var eachMsgDOM;
+        // });
 
         // 播放完毕后执行下标
         messageIndex++;
         if (!LETTER_MESSAGE_PROCESS[messageIndex]) {
           messageIndex = 0;
         }
-        isDoingNext = false;
+        nextMessageProcessing = false;
       }
-
+      function playDefaultMusic() {
+        playTargetMusic(
+          'https://w2-risk-fe.kwimgs.com/kos/nlav111581/5c8965fae3e3677203.e448ddabf64858a7.mp3'
+        );
+      }
+      async function playTargetMusic(src) {
+        if (bgMusic) {
+          await new Promise((resolve) => {
+            var fadeInterval = 50; // 定义每次减小音量的时间间隔
+            var fade = 0.05; // 定义音量逐渐减小的速度
+            var fadingTimer = setInterval(function () {
+              if (bgMusic.volume > fade) {
+                bgMusic.volume = (bgMusic.volume - fade).toFixed(2);
+              } else {
+                clearInterval(fadingTimer);
+                bgMusic.pause();
+                bgMusic.src = '';
+                resolve();
+              }
+            }, fadeInterval);
+          });
+        }
+        bgMusic = new Audio(); // 创建一个新的音频对象
+        bgMusic.src = src;
+        bgMusic.loop = -1;
+        bgMusic.play();
+      }
       function showFooter() {
         document.getElementById('stageFooter').classList.add('footer-show');
       }
-
+      function hideFooter() {
+        document.getElementById('stageFooter').classList.remove('footer-show');
+      }
+      async function drawImageSync(dom) {
+        isImageLoading = true;
+        return new Promise((resolve) => {
+          var stageDOM = document.getElementById('stage');
+          dom.onload = async () => {
+            stageDOM.appendChild(dom);
+            stageDOM.scrollTop = stageDOM.scrollHeight;
+            // 最后一个字拼完以后稍作停留
+            await new Promise((pResolve) => setTimeout(() => pResolve(), 400));
+            isImageLoading = false;
+            resolve();
+          };
+        });
+      }
       // 根据调用顺序，依次的以一定速度打进去
-      function spellWordSync(dom, message, classNames) {
+      async function spellWordSync(dom, message, classNames) {
         // dom不要每一个div同时打字，而是根据阅读顺序的顺次打字
         spellWordProcess = spellWordProcess.then(
           () =>
             new Promise(async (resolve) => {
               var stageDOM = document.getElementById('stage');
-              stageDOM.appendChild(dom);
-
               isSpelling = true;
               // 增加文字块dom
               var textDOM = document.createElement('span');
@@ -281,7 +397,7 @@
 
               // 增加光标dom
               var cursorDOM = document.createElement('span');
-              cursorDOM.classList.add('f', 'cursor-blink');
+              cursorDOM.classList.add('f', 'blink');
               cursorDOM.innerHTML = ' |';
               dom.appendChild(cursorDOM);
 
@@ -308,6 +424,7 @@
               resolve();
             })
         );
+        return spellWordProcess;
       }
 
       // 进入全屏
