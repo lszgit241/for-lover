@@ -172,107 +172,97 @@
     <!-- 临时存放的dom模板 -->
     <div class="temps"></div>
     <script>
-      var IMAGE_CDN_LIST = [
-        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/9b3e237f7da592aeab93c89affd9ec91.a7cdcd5f920289b8.jpg',
-        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/168efe3395936fb8e115e805406d0155.b5d32d3f1367ea7f.jpeg',
-        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/0900ca411c546900ff6b260131b0e83b.2268016fddba06ee.jpeg',
-        'https://w2-risk-fe.kwimgs.com/kos/nlav111581/8a68d6cc5532af612a5684e916376aa4.bff10ea883292d23.jpeg',
-      ];
+      var IMAGE_MAP = {
+        金顶喜马拉雅:
+          'https://w2-risk-fe.kwimgs.com/kos/nlav111581/9b3e237f7da592aeab93c89affd9ec91.a7cdcd5f920289b8.jpg',
+        尼泊尔河流和木船:
+          'https://w2-risk-fe.kwimgs.com/kos/nlav111581/168efe3395936fb8e115e805406d0155.b5d32d3f1367ea7f.jpeg',
+        雪顶喜玛拉雅:
+          'https://w2-risk-fe.kwimgs.com/kos/nlav111581/0900ca411c546900ff6b260131b0e83b.2268016fddba06ee.jpeg',
+        尼泊尔寺庙:
+          'https://w2-risk-fe.kwimgs.com/kos/nlav111581/8a68d6cc5532af612a5684e916376aa4.bff10ea883292d23.jpeg',
+      };
       var fullScreenFlag = false;
       var CENTER_TITLE_PATTERN = 'f f-title l-center l-w-p100 f-center';
       var TITLE_PATTERN = 'f f-title';
       var NORMAL_PATTERN = 'f f-normal';
       var CENTER_IMAGE_PATTERN = 'image l-center';
       var IMAGE_PATTERN = 'image i-content';
-      // 整个信件的文字结构信息
-      var LETTER_MESSAGE_PROCESS = [
-        [
-          {
-            class: CENTER_TITLE_PATTERN,
-            message: '点我开始阅读这封信',
-            onClick: [
-              'enterFullscreen',
-              'showFooter',
-              'playDefaultMusic',
-              'nextMessage',
-            ],
-          },
-        ],
-        [
-          {
-            class: CENTER_TITLE_PATTERN,
-            message: 'Hi 丹丹!',
-          },
-        ],
-        [
-          {
-            class: CENTER_TITLE_PATTERN,
-            message:
-              '我是脏脏！哈哈，思来想去，还是想用这样的一封信祝你生日快乐！',
-          },
-        ],
-        [
-          {
-            class: NORMAL_PATTERN,
-            message:
-              '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
-          },
-          {
-            class: NORMAL_PATTERN,
-            message:
-              '2018年8月25日，一个很平凡的日子，我们对彼此宣布正式走到了一起',
-          },
-        ],
-        [
-          {
-            class: CENTER_IMAGE_PATTERN,
-            type: 'image',
-            src: IMAGE_CDN_LIST[0],
-          },
-        ],
-        [
-          {
-            class: TITLE_PATTERN,
-            message: '一切的开始',
-          },
-          {
-            class: NORMAL_PATTERN,
-            message: '2018年8月25日，一个很平凡的日子',
-          },
-          {
-            class: IMAGE_PATTERN,
-            type: 'image',
-            src: IMAGE_CDN_LIST[0],
-          },
-          {
-            class: NORMAL_PATTERN,
-            message:
-              '我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起我们对彼此宣布正式走到了一起',
-          },
-          {
-            class: NORMAL_PATTERN,
-            message: '一个很平凡的日子，我们对彼此宣布正式走到了一起',
-          },
-          {
-            class: NORMAL_PATTERN,
-            message: '一个很平凡的日子，我们对彼此宣布正式走到了一起',
-          },
-          {
-            class: NORMAL_PATTERN,
-            message: '一个很平凡的日子，我们对彼此宣布正式走到了一起',
-          },
-          {
-            class: NORMAL_PATTERN,
-            message: '一个很平凡的日子，我们对彼此宣布正式走到了一起',
-          },
-        ],
-      ];
       var messageIndex = 0;
       var spellWordProcess = Promise.resolve();
       var isSpelling = false;
       var isImageLoading = false;
       var nextMessageProcessing = false;
       var bgMusic = null;
+      // 整个信件的文字结构信息
+      var LETTER_MESSAGE_PROCESS = [
+        [
+          $center_title('点我开始阅读这封信', {
+            onClick: [
+              'enterFullscreen',
+              'showFooter',
+              'playDefaultMusic',
+              'nextMessage',
+            ],
+          }),
+        ],
+        [
+          // letter start
+          $center_title('Hi 丹丹!'),
+        ],
+        [
+          $center_title(
+            '我是脏脏！哈哈，思来想去，还是想用这样的一封信祝你生日快乐！'
+          ),
+        ],
+        [
+          $center_title(
+            '这是一封还挺长的信，请提前找个舒服的姿势，慢慢的看：）'
+          ),
+        ],
+        [
+          // 信的正文
+          $title('记忆的开始'),
+          $text('2021年初，我们相识在大学的艺术团纳招新活动上，'),
+        ],
+      ];
+      function $text(message, config = {}) {
+        return {
+          class: NORMAL_PATTERN,
+          message,
+          ...config,
+        };
+      }
+      function $title(message, config = {}) {
+        return {
+          class: TITLE_PATTERN,
+          message,
+          ...config,
+        };
+      }
+      function $image(src, config = {}) {
+        return {
+          type: 'image',
+          class: IMAGE_PATTERN,
+          src,
+          ...config,
+        };
+      }
+      function $center_title(message, config = {}) {
+        return {
+          class: CENTER_TITLE_PATTERN,
+          message,
+          ...config,
+        };
+      }
+      function $center_image(src, config = {}) {
+        return {
+          type: 'image',
+          class: CENTER_IMAGE_PATTERN,
+          src,
+          ...config,
+        };
+      }
       async function nextMessage() {
         if (isSpelling) {
           return false;
