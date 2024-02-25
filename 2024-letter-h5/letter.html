@@ -126,6 +126,7 @@
         height: calc(100vh - 18vw);
         overflow: scroll;
         box-sizing: border-box;
+        padding-top: 4vh;
       }
       .stage::-webkit-scrollbar {
         display: none;
@@ -158,6 +159,7 @@
         height: 0;
       }
     </style>
+    <script src="https://w2-risk-fe.kwimgs.com/kos/nlav111581/howler.min.95b2fb29ed17a63c.js"></script>
     <!-- 主要舞台 -->
     <div id="stage" class="stage"></div>
     <div id="stageFooter" class="stage-footer">
@@ -553,24 +555,22 @@
       async function playTargetMusic(src) {
         if (bgMusic) {
           await new Promise((resolve) => {
-            var fadeInterval = 100; // 定义每次减小音量的时间间隔
-            var fade = 0.05; // 定义音量逐渐减小的速度
-            var fadingTimer = setInterval(function () {
-              if (bgMusic.volume > fade) {
-                bgMusic.volume = (bgMusic.volume - fade).toFixed(2);
-              } else {
-                clearInterval(fadingTimer);
-                bgMusic.pause();
-                bgMusic.src = '';
-                resolve();
-              }
-            }, fadeInterval);
+            bgMusic.fade(1, 0, 2000);
+            var fadeTimeout = setTimeout(() => {
+              bgMusic.stop();
+              bgMusic.unload();
+              resolve();
+            }, 2000);
           });
         }
-        bgMusic = new Audio(); // 创建一个新的音频对象
-        bgMusic.src = src;
-        bgMusic.loop = -1;
+        bgMusic = new Howl({
+          src: [src],
+        });
         bgMusic.play();
+        bgMusic.on('end', () => {
+          // 在音乐播放结束后再次播放
+          bgMusic.play();
+        });
       }
       function showFooter() {
         document.getElementById('stageFooter').classList.add('footer-show');
